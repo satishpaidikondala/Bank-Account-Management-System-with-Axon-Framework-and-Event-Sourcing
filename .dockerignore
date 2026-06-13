@@ -1,0 +1,10 @@
+target/
+.git/
+.gitignore
+.mvn/
+README.md
+*.md
+*.bat
+*.sh
+.env.example
+Bank-Account-API.postman_collection.json
