@@ -53,17 +53,19 @@ public class AccountController {
     }
 
     @PostMapping("/{accountId}/deposit")
-    public ResponseEntity<Void> deposit(@PathVariable String accountId,
-                                         @Valid @RequestBody AmountRequest request) {
-        commandGateway.sendAndWait(new DepositMoneyCommand(accountId, request.amount()));
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Map<String, Object>> deposit(@PathVariable String accountId,
+                                                        @Valid @RequestBody AmountRequest request) {
+        Map<String, Object> result = commandGateway.sendAndWait(
+            new DepositMoneyCommand(accountId, request.amount()));
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping("/{accountId}/withdraw")
-    public ResponseEntity<Void> withdraw(@PathVariable String accountId,
-                                          @Valid @RequestBody AmountRequest request) {
-        commandGateway.sendAndWait(new WithdrawMoneyCommand(accountId, request.amount()));
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Map<String, Object>> withdraw(@PathVariable String accountId,
+                                                         @Valid @RequestBody AmountRequest request) {
+        Map<String, Object> result = commandGateway.sendAndWait(
+            new WithdrawMoneyCommand(accountId, request.amount()));
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping("/{accountId}/close")

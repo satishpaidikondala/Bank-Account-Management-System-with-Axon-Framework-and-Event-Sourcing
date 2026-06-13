@@ -15,6 +15,8 @@ import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.modelling.command.AggregateIdentifier;
 import org.axonframework.spring.stereotype.Aggregate;
 
+import java.util.Map;
+
 import static org.axonframework.modelling.command.AggregateLifecycle.apply;
 
 @Aggregate(snapshotTriggerDefinition = "bankAccountSnapshotTrigger")
@@ -35,15 +37,22 @@ public class BankAccount {
     }
 
     @CommandHandler
-    public void handle(DepositMoneyCommand cmd) {
+    public Map<String, Object> handle(DepositMoneyCommand cmd) {
         if ("CLOSED".equals(status)) {
             throw new AccountClosedException(accountId);
         }
-        apply(new MoneyDepositedEvent(accountId, cmd.getAmount(), balance + cmd.getAmount()));
+        double newBalance = balance + cmd.getAmount();
+        apply(new MoneyDepositedEvent(accountId, cmd.getAmount(), newBalance));
+        return Map.of(
+            "message", "Deposit successful",
+            "accountId", accountId,
+            "amount", cmd.getAmount(),
+            "balance", newBalance
+        );
     }
 
     @CommandHandler
-    public void handle(WithdrawMoneyCommand cmd) {
+    public Map<String, Object> handle(WithdrawMoneyCommand cmd) {
         if ("CLOSED".equals(status)) {
             throw new AccountClosedException(accountId);
         }
@@ -51,7 +60,14 @@ public class BankAccount {
             throw new InsufficientFundsException(
                 "Insufficient funds. Available: " + balance + ", Requested: " + cmd.getAmount());
         }
-        apply(new MoneyWithdrawnEvent(accountId, cmd.getAmount(), balance - cmd.getAmount()));
+        double newBalance = balance - cmd.getAmount();
+        apply(new MoneyWithdrawnEvent(accountId, cmd.getAmount(), newBalance));
+        return Map.of(
+            "message", "Withdrawal successful",
+            "accountId", accountId,
+            "amount", cmd.getAmount(),
+            "balance", newBalance
+        );
     }
 
     @CommandHandler
